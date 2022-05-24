@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+
+{% block page_title %}
+    FORM
+{% endblock page_title %}
+
+{% block title %}
+    Создание формы
+{% endblock title %}
+
+{% block body %}
+    <div class="col-md-5 pb-5">
+        <label>Формы</label>
+        <select class="form-control type-row" id="formsList">
+            <option>новая</option>
+            {% for form in forms %} <option>{{ form }}</option> {% endfor %}
+        </select>
+        <hr/>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        <input id="formUid" name="formUid" value="new" hidden>
+        <div id="mainForm"></div>
+        <small class="form-text text-muted">* обязательно</small><br/>
+        <row>
+            <a id="addNewRow" class="btn btn-primary col-lg-2 mt-3">добавить поле</a>
+            <button type="submit" class="btn btn-dark col-lg-3 mt-3">сохранить форму</button>
+        </row>
+    </form>
+{% endblock body %}
+
+{% block extra_js %}
+    <script>
+        let base = `
+        <div class="col-md-3">
+            <label>Тип поля</label>
+            <select class="form-control type-row" name="type">
+                <option>input</option>
+                <option>textarea</option>
+                <option>select</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label>Название поля</label>
+            <input required name="name" type="text" class="form-control name-row" placeholder="Введите название*">
+        </div>
+        <div class="col-md-3">
+            <label>Описание поля</label>
+            <input name="description" type="text" class="form-control description-row" placeholder="Введите описание">
+        </div>
+        <div class="col-md-2">
+            <a class="btn mt-4 delRow" title="удалить поле">❌</a>
+        </div>
+        `
+
+        let rowNumber = 0
+
+        let availableForms = {{% for form in forms %}
+                "{{ form }}": [
+                    {% for row in form.rows.all %} ["{{ row.form_type }}", "{{ row.name }}", "{{ row.description }}"], {% endfor %}
+                ],
+            {% endfor %}}
+
+        let mainForm = $('#mainForm')
+        let formUid = $('#formUid')
+
+        let formsList = $('#formsList')
+
+        function addRow(currentRowNumber) {
+            mainForm.append('<div class="row mb-3" id="row' + currentRowNumber + '">' + base + ' </div>')
+
+            $('.delRow').on('click', function () {
+                let rowId = $(this).parent().parent().attr('id')
+                $('#' + rowId).remove()
+            })
+        }
+
+        $('#addNewRow').on('click', function () {
+            rowNumber++
+            addRow(rowNumber)
+        })
+
+        function loadForm(data) {
+            data.forEach(function(entry) {
+                addRow(rowNumber)
+                let currentRow = $('#row' + rowNumber)
+                currentRow.find('.type-row').val(entry[0])
+                currentRow.find('.name-row').val(entry[1])
+                currentRow.find('.description-row').val(entry[2])
+                rowNumber++
+            });
+        }
+
+        formsList.on('change', function () {
+            mainForm.empty()
+            if ($(this).val() === 'новая') {
+                formUid.val('new')
+                addRow(0)
+            } else {
+                formUid.val($(this).val())
+                loadForm(availableForms[$(this).val()])
+            }
+        })
+
+        addRow(0)
+    </script>
+{% endblock %}

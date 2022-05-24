@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+
+{% block page_title %}
+    RESULT
+{% endblock page_title %}
+{% block title %}
+    Результат
+{% endblock title %}
+
+{% block body %}
+    <div class="col-md-5 pb-5">
+        <label>Формы</label>
+        <select class="form-control type-row" id="formsList">
+            <option disabled selected>Выберите форму</option>
+            {% for form in forms %} <option>{{ form }}</option> {% endfor %}
+        </select>
+        <hr/>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        <div id="mainForm"></div>
+    </form>
+{% endblock body %}
+
+{% block extra_js %}
+    <script>
+        let formsList = $('#formsList')
+        let mainForm = $('#mainForm')
+
+        let availableForms = {{ forms | safe }}
+
+            function loadForm(data) {
+                let selectHtml = ''
+                data.forEach(function(entry) {
+                    let html = ''
+                    if (entry[0] === 'select') {
+                        let selected = ''
+                        if (entry[2] === 'True') {
+                            selected = ' selected'
+                        }
+                        if (selectHtml) {
+                            selectHtml += '<option' + selected + '>' + entry[1] + '</option>'
+                        } else {
+                            selectHtml = '<div class="col-md-6 mb-4"><div class="form-floating"><select disabled class="form-select" name="select"><option' + selected + '>' + entry[1] + '</option>'
+                        }
+                    } else {
+                        if (selectHtml) {
+                            mainForm.append(selectHtml + '<select/><div/><div/>')
+                            selectHtml = ''
+                        }
+
+                        html = '<div class="col-md-6 mb-4"><label>' + entry[1] + '</label>'
+
+                        if (entry[0] === 'input') {
+                            html += '<input disabled name="input" type="text" class="form-control" value="' + entry[2] + '"></div></div>'
+                        } else {
+                            html += '<div class="form-floating"><textarea disabled name="textarea" class="form-control">' + entry[2] + '</textarea></div></div>'
+                        }
+                    }
+                    mainForm.append(html)
+                });
+                if (selectHtml) {
+                    mainForm.append(selectHtml + '<div/><div/><select/>')
+                }
+            }
+
+        formsList.on('change', function () {
+            mainForm.empty()
+            loadForm(availableForms[$(this).val()])
+        })
+
+    </script>
+{% endblock %}
