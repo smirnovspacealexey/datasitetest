@@ -1,5 +1,4 @@
 Django==4.0.4
-jsonrpcserver==5.0.7
 requests==2.22.0
 
 

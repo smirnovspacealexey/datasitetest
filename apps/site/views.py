@@ -37,7 +37,7 @@ def result_view(request):
         for form_uid in uids:
             api_form = APIForm(form_uid)
             rows = api_form.get_result()
-            forms[form_uid] = rows
+            forms[form_uid] = rows if rows else []
         context.update({'forms': forms})
     return render(request, 'data/result.html', context)
 

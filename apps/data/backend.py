@@ -65,7 +65,11 @@ def api_rpc(request):
                 current_form = Form.objects.filter(pk=form_uid.split()[0]).first()
                 rows = []
                 for row in current_form.rows.all():
-                    rows.append([row.form_type, row.name, row.result.result if row.result.result else ''])
+                    if hasattr(row, 'result'):
+                        result = row.result.result if row.result.result else ''
+                    else:
+                        result = ''
+                    rows.append([row.form_type, row.name, result])
 
                 return JsonResponse({"jsonrpc": "2.0", "result": rows, "id": request.POST['id']})
 

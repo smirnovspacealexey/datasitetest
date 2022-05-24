@@ -26,9 +26,9 @@ SECRET_KEY = 'django-insecure-)-bm%h8jc_n3op345@^l%wq^+v37x$*od*2j&9wg@q#ko=wqr^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['*', 'https://84c5-94-181-38-81.eu.ngrok.io', 'http://je8ah4mdjbp7wznhn6tgst.webrelay.io', 'http://localhost:8001']
 
-
+CSRF_TRUSTED_ORIGINS = ['https://84c5-94-181-38-81.eu.ngrok.io', 'http://je8ah4mdjbp7wznhn6tgst.webrelay.io', 'http://localhost:8001']
 # Application definition
 
 INSTALLED_APPS = [

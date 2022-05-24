@@ -33,8 +33,13 @@ def result_view(request):
     for current_form in Form.objects.all():
         rows = []
         for row in current_form.rows.all():
-            rows.append([row.form_type, row.name, row.result.result if row.result.result else ''])
-        forms[current_form.__str__()] = rows
+            if hasattr(row, 'result'):
+                result = row.result.result if row.result.result else ''
+            else:
+                result = ''
+            rows.append([row.form_type, row.name, result])
+        if rows:
+            forms[current_form.__str__()] = rows
 
     context = {'forms': forms}
     return render(request, 'data/result.html', context)
